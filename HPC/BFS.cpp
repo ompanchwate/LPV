@@ -61,6 +61,8 @@ public:
         {
             int size = q.size();
             vector<int> currentLevel;
+
+            // Extract current level
             for (int i = 0; i < size; ++i)
             {
                 int node = q.front();
@@ -68,24 +70,30 @@ public:
                 currentLevel.push_back(node);
             }
 
+            vector<int> nextLevel;
+
 #pragma omp parallel for
             for (int i = 0; i < currentLevel.size(); ++i)
             {
                 int node = currentLevel[i];
                 for (int neighbor : adj[node])
                 {
-                    if (!visited[neighbor])
-                    {
+                    // Use a critical section to prevent race conditions on visited and nextLevel
 #pragma omp critical
+                    {
+                        if (!visited[neighbor])
                         {
-                            if (!visited[neighbor])
-                            {
-                                visited[neighbor] = true;
-                                q.push(neighbor);
-                            }
+                            visited[neighbor] = true;
+                            nextLevel.push_back(neighbor);
                         }
                     }
                 }
+            }
+
+            // Push next level to queue
+            for (int node : nextLevel)
+            {
+                q.push(node);
             }
         }
     }
