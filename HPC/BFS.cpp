@@ -70,8 +70,6 @@ public:
                 currentLevel.push_back(node);
             }
 
-            vector<int> nextLevel;
-
 #pragma omp parallel for
             for (int i = 0; i < currentLevel.size(); ++i)
             {
@@ -84,16 +82,10 @@ public:
                         if (!visited[neighbor])
                         {
                             visited[neighbor] = true;
-                            nextLevel.push_back(neighbor);
+                            q.push(neighbor);
                         }
                     }
                 }
-            }
-
-            // Push next level to queue
-            for (int node : nextLevel)
-            {
-                q.push(node);
             }
         }
     }
